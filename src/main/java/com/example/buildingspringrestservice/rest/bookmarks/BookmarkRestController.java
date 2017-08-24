@@ -1,10 +1,7 @@
 package com.example.buildingspringrestservice.rest.bookmarks;
 
 import java.net.URI;
-import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +24,7 @@ public class BookmarkRestController {
 	private final AccountRepository accountRepository;
 	
 	@Autowired
-	BookmarkRestController(BookmarkRepository bookmarkRepository, AccountRepository accountRepository) {
+	public BookmarkRestController(BookmarkRepository bookmarkRepository, AccountRepository accountRepository) {
 		this.bookmarkRepository = bookmarkRepository;
 		this.accountRepository = accountRepository;
 	}
@@ -35,14 +32,14 @@ public class BookmarkRestController {
 	@RequestMapping(method = RequestMethod.GET)
 	Collection<Bookmark> readBookmarks(@PathVariable String userId){		
 		validateUser(userId);
-		return this.bookmarkRepository.findByAccountUserName(userId);
+		return this.bookmarkRepository.findByAccountUsername(userId);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST)
-	ResponseEntity<?> add(@PathVariable String userId, @RequestBody Bookmark input){
+	ResponseEntity<?> add(@PathVariable String userId, @RequestBody Bookmark input){		
 		this.validateUser(userId);
 		return this.accountRepository
-						.findByUserName(userId)
+						.findByUsername(userId)
 						.map(account -> {
 							Bookmark result = bookmarkRepository.save(new Bookmark(account, input.uri, input.description));
 							URI location = ServletUriComponentsBuilder
@@ -62,7 +59,7 @@ public class BookmarkRestController {
 	
 	
 	private void validateUser(String userId){
-		this.accountRepository.findByUserName(userId)
+		this.accountRepository.findByUsername(userId)
 							  .orElseThrow(()-> new UserNotFoundException(userId));
 	}
 }
